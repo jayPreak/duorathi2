@@ -195,7 +195,17 @@ export const Shop = ({ user, update }: { user: UserState; update: Update }) => {
   );
 };
 
-export const Profile = ({ user, update, reset }: { user: UserState; update: Update; reset: () => void }) => {
+export const Profile = ({
+  user,
+  update,
+  reset,
+  account,
+}: {
+  user: UserState;
+  update: Update;
+  reset: () => void;
+  account: React.ReactNode;
+}) => {
   const week = lastSevenDays(user);
   const max = Math.max(user.dailyGoal, ...week.map((d) => d.xp));
   const passed = ALL_LEVELS.filter((l) => isLevelPassed(user, l.id)).length;
@@ -213,6 +223,7 @@ export const Profile = ({ user, update, reset }: { user: UserState; update: Upda
           aria-label="Display name"
         />
       </div>
+      {account}
       <h2>Statistics</h2>
       <div className="stats-grid">
         <div className="stat">🔥 <strong>{user.streak}</strong><span>Day streak</span></div>
@@ -245,7 +256,7 @@ export const Profile = ({ user, update, reset }: { user: UserState; update: Upda
         <span>Sound effects & auto-play audio</span>
         <input type="checkbox" checked={user.settings.sound} onChange={(e) => update((u) => ({ ...u, settings: { ...u.settings, sound: e.target.checked } }))} />
       </label>
-      <p className="muted small">Hearts refill 1 every {HEART_REFILL_MS / 60000} min. Progress is saved on this device.</p>
+      <p className="muted small">Hearts refill 1 every {HEART_REFILL_MS / 60000} min. Signed out, progress is saved on this device only.</p>
       <button
         type="button"
         className="btn btn--text btn--danger"

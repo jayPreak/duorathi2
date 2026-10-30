@@ -27,16 +27,31 @@ How the rules were recovered (and the exact formulas) is in
 - Romanization toggle, browser TTS (`mr-IN`, Hindi voice fallback), dark mode,
   installable (web manifest).
 
-Progress is stored in `localStorage` on the device.
+**Accounts** — sign in with Google (Profile tab) and progress is saved per
+account on the server, so it follows you across devices. Signed out, progress
+stays in `localStorage` on that device; the first sign-in on a new account
+adopts it.
+
+Server side (`api/`, Vercel Functions): `POST /api/auth/google` verifies the
+Google ID token against Google's JWKS and sets a 30-day HttpOnly session
+cookie; `GET/PUT /api/progress` reads/writes `progress/<google-sub>.json` in a
+private Vercel Blob store.
 
 ## Run
 
 ```bash
 pnpm install
-pnpm dev        # http://localhost:5173
-pnpm test       # engine unit tests
-pnpm build      # static site in dist/
+vercel env pull .env.local   # AUTH_SECRET, BLOB_READ_WRITE_TOKEN, GOOGLE_CLIENT_ID
+vercel dev                   # app + /api on http://localhost:3000
+pnpm test                    # engine unit tests
+pnpm build                   # static site in dist/
 ```
+
+`pnpm dev` (plain Vite) also works; it just runs signed-out.
+
+Env vars: `GOOGLE_CLIENT_ID` (OAuth web client; add each origin under
+"Authorized JavaScript origins"), `AUTH_SECRET` (cookie signing),
+`BLOB_READ_WRITE_TOKEN` (set by `vercel blob create-store`).
 
 ## Layout
 

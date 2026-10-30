@@ -1403,3 +1403,56 @@ h3 {
   z-index: 60;
   animation: up 0.2s ease-out;
 }
+
+/* ------------------------------------------------------------ account */
+.account {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  margin: 16px 0;
+  padding: 16px;
+  border: 2px solid var(--line);
+  border-radius: var(--radius);
+  text-align: center;
+}
+.account p {
+  margin: 0 0 6px;
+}
+.account--in {
+  flex-direction: row;
+  text-align: left;
+}
+.account__pic {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 1.8rem;
+  background: var(--bg-soft);
+  flex: none;
+}
+.account__who {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.account__google {
+  min-height: 44px;
+}
+.account__error {
+  color: var(--red);
+  margin: 0;
+}
+.save-banner {
+  display: block;
+  margin-top: 10px;
+  padding: 10px 14px;
+  border-radius: var(--radius);
+  background: color-mix(in srgb, var(--blue) 14%, transparent);
+  color: var(--blue);
+  text-align: center;
+}

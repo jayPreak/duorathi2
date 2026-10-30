@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { completeSession, MAX_HEARTS, openChest, type SessionTarget, todayXp } from './engine/progress';
 import { TIERS } from './engine/league';
+import { AccountCard } from './ui/AccountCard';
 import { Path } from './ui/Path';
 import { Session } from './ui/Session';
 import { useUser } from './ui/store';
@@ -27,7 +28,7 @@ const fmtCountdown = (ms: number) => {
 };
 
 export const App = () => {
-  const { user, update, reset } = useUser();
+  const { user, update, reset, account, onSignedIn, signOut } = useUser();
   const [tab, setTab] = useState<Tab>(readTab);
   const [session, setSession] = useState<{ target: SessionTarget; key: number } | null>(null);
   const [heartsOpen, setHeartsOpen] = useState(false);
@@ -144,6 +145,11 @@ export const App = () => {
                 🛡️ {TIERS[user.league.tier].name}
               </span>
             </div>
+            {account.status === 'guest' && user.xpTotal > 0 && (
+              <a href="#/profile" className="save-banner">
+                💾 Sign in with Google to save your progress
+              </a>
+            )}
             <Path
               user={user}
               onStart={start}
@@ -158,7 +164,14 @@ export const App = () => {
         {tab === 'quests' && <Quests user={user} update={update} />}
         {tab === 'leagues' && <Leagues user={user} />}
         {tab === 'shop' && <Shop user={user} update={update} />}
-        {tab === 'profile' && <Profile user={user} update={update} reset={reset} />}
+        {tab === 'profile' && (
+          <Profile
+            user={user}
+            update={update}
+            reset={reset}
+            account={<AccountCard account={account} onSignedIn={onSignedIn} onSignOut={signOut} />}
+          />
+        )}
       </div>
       {toast && <div className="toast">{toast}</div>}
     </div>
