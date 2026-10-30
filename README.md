@@ -58,7 +58,8 @@ Env vars: `GOOGLE_CLIENT_ID` (OAuth web client; add each origin under
 ```
 src/content/   course.ts (Marathi units/skills), alphabet.ts, types.ts
 src/engine/    xp, session reducer, challenge generator, progress, quests, league
-src/ui/        Path, Session (+ end slides), Challenges, Tabs, store, speech
+src/ui/        Path, Session (+ end slides), Challenges, Tabs, store, speech, account
+api/           Vercel Functions: Google auth + per-account progress
 tools/re/      fetch-bundles.sh + run-rea.sh — reproduce the analysis (output is gitignored)
 docs/          REVERSE_ENGINEERING.md
 ```
