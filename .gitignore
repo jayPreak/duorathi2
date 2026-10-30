@@ -5,3 +5,5 @@ dist
 # reverse-engineering workspace (third-party bundles + REA evidence) — never commit
 tools/re/work/
 *.tsbuildinfo
+.vercel
+.env*
