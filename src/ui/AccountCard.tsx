@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from 'react';
-import { type AccountUser, renderGoogleButton } from './account';
+import { useState } from 'react';
+import { type AccountUser, authenticate } from './account';
 import type { Account } from './store';
 
 interface Props {
@@ -9,13 +9,11 @@ interface Props {
 }
 
 export const AccountCard = ({ account, onSignedIn, onSignOut }: Props) => {
-  const btn = useRef<HTMLDivElement>(null);
+  const [mode, setMode] = useState<'login' | 'signup'>('login');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (account.status !== 'guest' || !btn.current) return;
-    void renderGoogleButton(btn.current, onSignedIn, setError).catch((e: Error) => setError(e.message));
-  }, [account.status, onSignedIn]);
 
   if (account.status === 'loading') return <div className="account muted">Checking your account…</div>;
 
@@ -23,14 +21,10 @@ export const AccountCard = ({ account, onSignedIn, onSignOut }: Props) => {
     const { user } = account;
     return (
       <div className="account account--in">
-        {user.picture ? (
-          <img className="account__pic" src={user.picture} alt="" referrerPolicy="no-referrer" />
-        ) : (
-          <span className="account__pic">🦉</span>
-        )}
+        <span className="account__pic">🦉</span>
         <div className="account__who">
           <strong>{user.name}</strong>
-          <span className="muted small">{user.email}</span>
+          <span className="muted small">{user.sub}</span>
           <span className="muted small">{account.syncing ? 'Saving…' : '✓ Progress saved to your account'}</span>
         </div>
         <button type="button" className="btn btn--ghost btn--sm" onClick={onSignOut}>
@@ -40,12 +34,57 @@ export const AccountCard = ({ account, onSignedIn, onSignOut }: Props) => {
     );
   }
 
+  const submit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setBusy(true);
+    setError(null);
+    try {
+      onSignedIn(await authenticate(mode, email, password));
+      setPassword('');
+    } catch (err) {
+      setError((err as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  };
+
   return (
-    <div className="account">
-      <strong>Save your progress</strong>
-      <p className="muted small">Sign in with Google to keep your streak, XP and lessons on every device.</p>
-      <div ref={btn} className="account__google" />
+    <form className="account" onSubmit={submit}>
+      <strong>{mode === 'login' ? 'Log in to save your progress' : 'Create your profile'}</strong>
+      <p className="muted small">Keep your streak, XP and lessons on every device.</p>
+      <input
+        className="field"
+        type="email"
+        autoComplete="email"
+        placeholder="Email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        required
+      />
+      <input
+        className="field"
+        type="password"
+        autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
+        placeholder={mode === 'login' ? 'Password' : 'Password (6+ characters)'}
+        minLength={mode === 'signup' ? 6 : undefined}
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        required
+      />
       {error && <p className="small account__error">{error}</p>}
-    </div>
+      <button type="submit" className="btn btn--blue" disabled={busy}>
+        {busy ? '…' : mode === 'login' ? 'Log in' : 'Create account'}
+      </button>
+      <button
+        type="button"
+        className="btn btn--text"
+        onClick={() => {
+          setMode(mode === 'login' ? 'signup' : 'login');
+          setError(null);
+        }}
+      >
+        {mode === 'login' ? 'New here? Create an account' : 'Have an account? Log in'}
+      </button>
+    </form>
   );
 };

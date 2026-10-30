@@ -147,7 +147,7 @@ export const App = () => {
             </div>
             {account.status === 'guest' && user.xpTotal > 0 && (
               <a href="#/profile" className="save-banner">
-                💾 Sign in with Google to save your progress
+                💾 Log in to save your progress
               </a>
             )}
             <Path

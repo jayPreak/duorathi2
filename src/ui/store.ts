@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { initialState, refresh, type UserState } from '../engine/progress';
-import { type AccountUser, fetchProgress, saveProgress, signOut as gisSignOut } from './account';
+import { type AccountUser, fetchProgress, saveProgress, signOut as apiSignOut } from './account';
 
 const KEY = 'duorathi2:user';
 const SAVE_DEBOUNCE_MS = 1500;
@@ -31,8 +31,9 @@ export type Account = { status: 'loading' } | { status: 'guest' } | { status: 's
 /** first sign-in on an account with no saved progress adopts the guest progress; otherwise the account wins */
 const adopt = (server: UserState | null, local: UserState, user: AccountUser): { state: UserState; upload: boolean } =>
   server?.version === 1
-    ? { state: refresh(server), upload: false }
-    : { state: { ...local, name: local.name === 'You' ? user.name.split(' ')[0] : local.name }, upload: true };
+    ? // fill fields added after the save was written
+      { state: refresh({ ...initialState(), ...server }), upload: false }
+    : { state: { ...local, name: local.name === 'You' ? user.name : local.name }, upload: true };
 
 export const useUser = () => {
   const [user, setUser] = useState<UserState>(load);
@@ -53,7 +54,14 @@ export const useUser = () => {
     const { user: me, state } = await fetchProgress();
     const who = me ?? known;
     if (!who || !me) return setAccount({ status: 'guest' });
-    const { state: next, upload } = adopt(state, latest.current, who);
+    let adopted: ReturnType<typeof adopt>;
+    try {
+      adopted = adopt(state, latest.current, who);
+    } catch {
+      // unreadable save → keep this device's progress and overwrite it
+      adopted = { state: latest.current, upload: true };
+    }
+    const { state: next, upload } = adopted;
     setUser(next);
     setAccount({ status: 'signedIn', user: who, syncing: false });
     if (upload) await saveProgress(next);
@@ -87,7 +95,7 @@ export const useUser = () => {
 
   const signOut = useCallback(async () => {
     await saveProgress(latest.current);
-    await gisSignOut();
+    await apiSignOut();
     // don't leave this account's progress behind for the next person on the device
     setUser(initialState());
     setAccount({ status: 'guest' });

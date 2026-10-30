@@ -27,21 +27,21 @@ How the rules were recovered (and the exact formulas) is in
 - Romanization toggle, browser TTS (`mr-IN`, Hindi voice fallback), dark mode,
   installable (web manifest).
 
-**Accounts** — sign in with Google (Profile tab) and progress is saved per
+**Accounts** — log in with email + password (Profile tab) and progress is saved per
 account on the server, so it follows you across devices. Signed out, progress
 stays in `localStorage` on that device; the first sign-in on a new account
 adopts it.
 
-Server side (`api/`, Vercel Functions): `POST /api/auth/google` verifies the
-Google ID token against Google's JWKS and sets a 30-day HttpOnly session
-cookie; `GET/PUT /api/progress` reads/writes `progress/<google-sub>.json` in a
-private Vercel Blob store.
+Server side (`api/`, Vercel Functions): `POST /api/auth/signup|login` checks
+an scrypt password hash (`accounts/<email>.json`) and sets a 30-day HttpOnly
+session cookie; `GET/PUT /api/progress` reads/writes `progress/<email>.json`.
+Both live in a private Vercel Blob store.
 
 ## Run
 
 ```bash
 pnpm install
-vercel env pull .env.local   # AUTH_SECRET, BLOB_READ_WRITE_TOKEN, GOOGLE_CLIENT_ID
+vercel env pull .env.local   # AUTH_SECRET, BLOB_READ_WRITE_TOKEN
 vercel dev                   # app + /api on http://localhost:3000
 pnpm test                    # engine unit tests
 pnpm build                   # static site in dist/
@@ -49,9 +49,8 @@ pnpm build                   # static site in dist/
 
 `pnpm dev` (plain Vite) also works; it just runs signed-out.
 
-Env vars: `GOOGLE_CLIENT_ID` (OAuth web client; add each origin under
-"Authorized JavaScript origins"), `AUTH_SECRET` (cookie signing),
-`BLOB_READ_WRITE_TOKEN` (set by `vercel blob create-store`).
+Env vars: `AUTH_SECRET` (cookie signing), `BLOB_READ_WRITE_TOKEN` (set by
+`vercel blob create-store`).
 
 ## Layout
 
@@ -59,7 +58,7 @@ Env vars: `GOOGLE_CLIENT_ID` (OAuth web client; add each origin under
 src/content/   course.ts (Marathi units/skills), alphabet.ts, types.ts
 src/engine/    xp, session reducer, challenge generator, progress, quests, league
 src/ui/        Path, Session (+ end slides), Challenges, Tabs, store, speech, account
-api/           Vercel Functions: Google auth + per-account progress
+api/           Vercel Functions: email/password auth + per-account progress
 tools/re/      fetch-bundles.sh + run-rea.sh — reproduce the analysis (output is gitignored)
 docs/          REVERSE_ENGINEERING.md
 ```

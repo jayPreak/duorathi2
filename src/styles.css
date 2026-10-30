@@ -1440,8 +1440,20 @@ h3 {
   min-width: 0;
   overflow-wrap: anywhere;
 }
-.account__google {
-  min-height: 44px;
+.field {
+  width: 100%;
+  min-height: 48px;
+  padding: 0 14px;
+  border: 2px solid var(--line);
+  border-radius: 12px;
+  background: var(--bg-soft);
+  color: var(--text);
+  font: inherit;
+  font-size: 1rem;
+}
+.field:focus {
+  outline: none;
+  border-color: var(--blue);
 }
 .account__error {
   color: var(--red);
