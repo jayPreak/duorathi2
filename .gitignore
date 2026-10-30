@@ -1,0 +1,7 @@
+node_modules
+dist
+*.log
+.DS_Store
+# reverse-engineering workspace (third-party bundles + REA evidence) — never commit
+tools/re/work/
+*.tsbuildinfo
